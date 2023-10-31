@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "children-game-night"
+version = "0.1.0"
+description = ""
+authors = ["Jonathan Zhang <jonathan.zhang@scale.com>"]
+readme = "README.md"
+packages = [{include = "children_game_night"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+flask = "^3.0.0"
+pyserial = "^3.5"
+flask-socketio = "^5.3.6"
+pygame = "^2.5.2"
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.6.1"
+types-pyserial = "^3.5.0.10"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
