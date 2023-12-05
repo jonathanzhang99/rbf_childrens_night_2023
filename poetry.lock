@@ -75,6 +75,20 @@ async = ["asgiref (>=3.2)"]
 dotenv = ["python-dotenv"]
 
 [[package]]
+name = "flask-cors"
+version = "4.0.0"
+description = "A Flask extension adding a decorator for CORS support"
+optional = false
+python-versions = "*"
+files = [
+    {file = "Flask-Cors-4.0.0.tar.gz", hash = "sha256:f268522fcb2f73e2ecdde1ef45e2fd5c71cc48fe03cffb4b441c6d1b40684eb0"},
+    {file = "Flask_Cors-4.0.0-py2.py3-none-any.whl", hash = "sha256:bc3492bfd6368d27cfe79c7821df5a8a319e1a6d5eab277a3794be19bdc51783"},
+]
+
+[package.dependencies]
+Flask = ">=0.9"
+
+[[package]]
 name = "flask-socketio"
 version = "5.3.6"
 description = "Socket.IO integration for Flask applications"
@@ -393,6 +407,20 @@ wsproto = "*"
 docs = ["sphinx"]
 
 [[package]]
+name = "types-flask-cors"
+version = "4.0.0.2"
+description = "Typing stubs for Flask-Cors"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "types-Flask-Cors-4.0.0.2.tar.gz", hash = "sha256:7cf2f4305188334aea0f5eb1af15da16e1e8cfd2a1e69a3e2fab0719207b8f33"},
+    {file = "types_Flask_Cors-4.0.0.2-py3-none-any.whl", hash = "sha256:2e870bc0234e6b771113960dd671f7ed99c00b1208a51285200e2b469913b475"},
+]
+
+[package.dependencies]
+Flask = ">=2.0.0"
+
+[[package]]
 name = "types-pyserial"
 version = "3.5.0.10"
 description = "Typing stubs for pyserial"
@@ -447,5 +475,5 @@ h11 = ">=0.9.0,<1"
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.11"
-content-hash = "d948f37068e12df15b79a9f53ef9e1a0ef438dfe042bcf3ed2e2bab0ed0f2df3"
+python-versions = "^3.12"
+content-hash = "7bd8063b02e3f8da2b71b7842ceeebc3bb40e815e21438a0ec9ed976a1a7dd50"

@@ -13,8 +13,15 @@ poetry
 
 ## Local Dev
 Make sure that your Arduino is connected and update the `PORT` variable in `entrypoint.py` .
+The frontend uses svelte packaged with bun.js.
 
 TODO: Use environment variables/CLI input to set the PORT.
 ```
 poetry run python entrypoint.py
+```
+in a different shell:
+```
+cd frontend
+bun install
+bun run dev
 ```

@@ -7,7 +7,6 @@
 #include <assert.h>
 #include <Servo.h>
 
-
 // #define DEBUG  // Activate this for lots of lovely debug output from the IR decoders
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
@@ -45,19 +44,19 @@ bool servoIncreasing = true;
 /*
  * struct to manage ir targets (ir + light)
  */
-struct irTarget {
+struct irTarget
+{
   uint_fast8_t irPin;
   CRGB leds[NUM_LEDS];
 };
 
-irTarget target1 = { 2 };
-irTarget target2 = { 3 };
-irTarget target3 = { 4 };
-irTarget target4 = { 5 };
-
+irTarget target1 = {2};
+irTarget target2 = {3};
+irTarget target3 = {4};
+irTarget target4 = {5};
 
 // irTarget *irTargets[] = { &target1, &target2, &target3, &target4 };
-irTarget *irTargets[] = { &target1, &target2, &target3, &target4 };
+irTarget *irTargets[] = {&target1, &target2, &target3, &target4};
 const uint8_t numTargets = ARRAY_SIZE(irTargets);
 
 /*
@@ -71,10 +70,11 @@ unsigned long gameLength = 90000;
 bool randomTargetJumpEnabled = false;
 unsigned long lastJumpTime = 0;
 
-/* 
+/*
  * Player state variables
  */
-struct playerState {
+struct playerState
+{
   uint16_t score = 0;
   uint8_t targetsDestroyed = 0;
   uint8_t hitsPerSignal = 16;
@@ -108,26 +108,31 @@ unsigned long lastDebounceTime = 0;
 byte lastButtonState = LOW;
 byte buttonState = LOW;
 
-void printActivePin() {
+void printActivePin()
+{
   Serial.print(F("INFO: Active pin: "));
   Serial.println(irparams.IRReceivePin);
 }
 
-void blinkRainbow(int tDelay = 100) {
-  for (int i = 0; i < numTargets; i++) {
+void blinkRainbow(int tDelay = 100)
+{
+  for (int i = 0; i < numTargets; i++)
+  {
     fill_rainbow(irTargets[i]->leds, NUM_LEDS, 0, 16);
   }
   FastLED.show();
   delay(tDelay);
 
-  for (int i = 0; i < numTargets; i++) {
+  for (int i = 0; i < numTargets; i++)
+  {
     fill_solid(irTargets[i]->leds, NUM_LEDS, CRGB::Black);
   }
   FastLED.show();
   delay(tDelay);
 }
 
-void blinkRainbow(irTarget *ir, int tDelay = 100) {
+void blinkRainbow(irTarget *ir, int tDelay = 100)
+{
   fill_rainbow(ir->leds, NUM_LEDS, 0, 16);
   FastLED.show();
   delay(tDelay);
@@ -136,7 +141,8 @@ void blinkRainbow(irTarget *ir, int tDelay = 100) {
   delay(tDelay);
 }
 
-void blinkSolid(irTarget *ir, CRGB color, int tDelay = 100) {
+void blinkSolid(irTarget *ir, CRGB color, int tDelay = 100)
+{
   fill_solid(ir->leds, NUM_LEDS, color);
   FastLED.show();
   delay(tDelay);
@@ -145,41 +151,52 @@ void blinkSolid(irTarget *ir, CRGB color, int tDelay = 100) {
   delay(tDelay);
 }
 
-void emitScore() {
+void emitScore()
+{
   Serial.print(F("EMIT SCORE "));
-  for (int i = 0; i < numPlayers; i++) {
+  for (int i = 0; i < numPlayers; i++)
+  {
     Serial.print(playerStates[i].score);
     Serial.print(" ");
   }
   Serial.println();
 }
 
-void emitGameActive() {
-  if (gameActive) {
+void emitGameActive()
+{
+  if (gameActive)
+  {
     Serial.print(F("EMIT GAME_ACTIVE "));
     Serial.println(gameLength);
-  } else {
+  }
+  else
+  {
     Serial.println(F("EMIT GAME_INACTIVE"));
   }
 }
 
-void emitGameMode() {
+void emitGameMode()
+{
   Serial.print(F("EMIT GAME_MODE "));
   Serial.println(gameMode);
 }
 
-void emitTargetHit() {
+void emitTargetHit()
+{
   Serial.print(F("EMIT TARGET_HIT "));
   Serial.println(irTargets[activeTargetIdx]->irPin);
 }
 
-void emitTargetDestroyed() {
+void emitTargetDestroyed()
+{
   Serial.print(F("EMIT TARGET_DESTROYED "));
   Serial.println(irTargets[activeTargetIdx]->irPin);
 }
 
-void resetGameState() {
-  for (int i = 0; i < numPlayers; i++) {
+void resetGameState()
+{
+  for (int i = 0; i < numPlayers; i++)
+  {
     playerStates[i].hitsOnTarget = 0;
     playerStates[i].targetsDestroyed = 0;
     playerStates[i].hitsPerSignal = (gameMode == SHOWDOWN_GAME_MODE) ? 16 : 8;
@@ -194,23 +211,28 @@ void resetGameState() {
   emitGameMode();
 }
 
-void activateRandomNextTarget() {
+void activateRandomNextTarget()
+{
   activeTargetIdx = random8(numTargets);
   IrReceiver.begin(irTargets[activeTargetIdx]->irPin, ENABLE_LED_FEEDBACK);
   printActivePin();
 }
 
-void debounceButton() {
+void debounceButton()
+{
   byte buttonReading = digitalRead(buttonPin);
 
-  if (buttonReading != lastButtonState) {
+  if (buttonReading != lastButtonState)
+  {
     lastDebounceTime = millis();
   }
 
-  if ((millis() - lastDebounceTime) > debounceDelay && buttonReading != buttonState) {
+  if ((millis() - lastDebounceTime) > debounceDelay && buttonReading != buttonState)
+  {
     buttonState = buttonReading;
 
-    if (buttonState == HIGH) {
+    if (buttonState == HIGH)
+    {
       servoMoving = !servoMoving;
     }
   }
@@ -218,70 +240,94 @@ void debounceButton() {
   lastButtonState = buttonReading;
 }
 
-
-void safeFastLedShow() {
-  if (IrReceiver.isIdle()) {
+void safeFastLedShow()
+{
+  if (IrReceiver.isIdle())
+  {
     FastLED.show();
   }
 }
 
-void fillShowdownLeds() {
+void fillShowdownLeds()
+{
   fill_solid(irTargets[activeTargetIdx]->leds, NUM_LEDS, CRGB::Green);
-  for (int i = NUM_LEDS - 1; i > NUM_LEDS - 1 - totalHitsOnTarget; i--) {
+  for (int i = NUM_LEDS - 1; i > NUM_LEDS - 1 - totalHitsOnTarget; i--)
+  {
     irTargets[activeTargetIdx]->leds[i] = CRGB::Black;
   }
-  for (int i = 0; i < numTargets; i++) {
-    if (i != activeTargetIdx) {
+  for (int i = 0; i < numTargets; i++)
+  {
+    if (i != activeTargetIdx)
+    {
       fill_solid(irTargets[i]->leds, NUM_LEDS, CRGB::Red);
     }
   }
 }
 
-void fillVSLeds() {
+void fillVSLeds()
+{
   fill_solid(irTargets[activeTargetIdx]->leds, NUM_LEDS, CRGB::Green);
-  for (int i = 0; i < playerStates[0].hitsOnTarget; i++) {
+  for (int i = 0; i < playerStates[0].hitsOnTarget; i++)
+  {
     irTargets[activeTargetIdx]->leds[i] = CRGB::Orange;
   }
-  for (int i = NUM_LEDS - 1; i > NUM_LEDS - 1 - playerStates[1].hitsOnTarget; i--) {
+  for (int i = NUM_LEDS - 1; i > NUM_LEDS - 1 - playerStates[1].hitsOnTarget; i--)
+  {
     irTargets[activeTargetIdx]->leds[i] = CRGB::Blue;
   }
 
-  for (int i = 0; i < numTargets; i++) {
-    if (i != activeTargetIdx) {
+  for (int i = 0; i < numTargets; i++)
+  {
+    if (i != activeTargetIdx)
+    {
       fill_solid(irTargets[i]->leds, NUM_LEDS, CRGB::Red);
     }
   }
 }
 
-void fillLeds() {
-  if (gameMode == SHOWDOWN_GAME_MODE) {
+void fillLeds()
+{
+  if (gameMode == SHOWDOWN_GAME_MODE)
+  {
     fillShowdownLeds();
-  } else if (gameMode == VS_GAME_MODE) {
+  }
+  else if (gameMode == VS_GAME_MODE)
+  {
     fillVSLeds();
   }
 }
 
-void targetDestroyedShowdown() {
+void targetDestroyedShowdown()
+{
   totalHitsOnTarget = 0;
   totalTargetsDestroyed += 1;
-  playerStates[0].score += totalTargetsDestroyed < LEVEL_1 ? 100 : totalTargetsDestroyed < LEVEL_2 ? 200 : totalTargetsDestroyed < LEVEL_3 ? 600 : 1000;
+  playerStates[0].score += totalTargetsDestroyed < LEVEL_1 ? 100 : totalTargetsDestroyed < LEVEL_2 ? 200
+                                                               : totalTargetsDestroyed < LEVEL_3   ? 600
+                                                                                                   : 1000;
   emitTargetDestroyed();
   emitScore();
-  
+
   uint8_t newHitsPerSignal = playerStates[0].hitsPerSignal;
-  if (totalTargetsDestroyed == LEVEL_1) {
+  if (totalTargetsDestroyed == LEVEL_1)
+  {
     newHitsPerSignal = 8;
-  } else if (totalTargetsDestroyed == LEVEL_2) {
+  }
+  else if (totalTargetsDestroyed == LEVEL_2)
+  {
     newHitsPerSignal = 4;
-  } else if (totalTargetsDestroyed == LEVEL_3) {
+  }
+  else if (totalTargetsDestroyed == LEVEL_3)
+  {
     randomTargetJumpEnabled = true;
   }
-  for (int i = 0; i < numPlayers; i++) {
+  for (int i = 0; i < numPlayers; i++)
+  {
     playerStates[i].hitsPerSignal = newHitsPerSignal;
     playerStates[i].hitsOnTarget = 0;
   }
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++)
+  {
     blinkRainbow(irTargets[activeTargetIdx]);
   }
   fill_solid(irTargets[activeTargetIdx]->leds, NUM_LEDS, CRGB::Red);
@@ -291,30 +337,40 @@ void targetDestroyedShowdown() {
   activateRandomNextTarget();
 }
 
-void targetDestroyedVS() {
+void targetDestroyedVS()
+{
   totalHitsOnTarget = 0;
   totalTargetsDestroyed += 1;
-  playerStates[lastPlayerHit].score += totalTargetsDestroyed < LEVEL_1 ? 100 : totalTargetsDestroyed < LEVEL_2 ? 200 : totalTargetsDestroyed < LEVEL_3 ? 600 : 1000;
+  playerStates[lastPlayerHit].score += totalTargetsDestroyed < LEVEL_1 ? 100 : totalTargetsDestroyed < LEVEL_2 ? 200
+                                                                           : totalTargetsDestroyed < LEVEL_3   ? 600
+                                                                                                               : 1000;
   playerStates[lastPlayerHit].targetsDestroyed += 1;
 
   emitTargetDestroyed();
   emitScore();
 
   uint8_t newHitsPerSignal = playerStates[0].hitsPerSignal;
-  if (totalTargetsDestroyed == LEVEL_1) {
+  if (totalTargetsDestroyed == LEVEL_1)
+  {
     newHitsPerSignal = 8;
-  } else if (totalTargetsDestroyed == LEVEL_2) {
+  }
+  else if (totalTargetsDestroyed == LEVEL_2)
+  {
     newHitsPerSignal = 4;
-  } else if (totalTargetsDestroyed == LEVEL_3) {
+  }
+  else if (totalTargetsDestroyed == LEVEL_3)
+  {
     randomTargetJumpEnabled = true;
   }
-  for (int i = 0; i < numPlayers; i++) {
+  for (int i = 0; i < numPlayers; i++)
+  {
     playerStates[i].hitsPerSignal = newHitsPerSignal;
     playerStates[i].hitsOnTarget = 0;
   }
 
-  CRGB blinkColor = lastPlayerHit ? CRGB::Blue : CRGB::Orange; 
-  for (int i = 0; i < 4; i++) {
+  CRGB blinkColor = lastPlayerHit ? CRGB::Blue : CRGB::Orange;
+  for (int i = 0; i < 4; i++)
+  {
     blinkSolid(irTargets[activeTargetIdx], blinkColor);
   }
   fill_solid(irTargets[activeTargetIdx]->leds, NUM_LEDS, CRGB::Red);
@@ -323,17 +379,20 @@ void targetDestroyedVS() {
   activateRandomNextTarget();
 }
 
-void targetDestroyedUpdate() {
-  if (gameMode == SHOWDOWN_GAME_MODE) {
+void targetDestroyedUpdate()
+{
+  if (gameMode == SHOWDOWN_GAME_MODE)
+  {
     targetDestroyedShowdown();
-  } else if (gameMode == VS_GAME_MODE) {
+  }
+  else if (gameMode == VS_GAME_MODE)
+  {
     targetDestroyedVS();
   }
 }
 
-
-
-void setup() {
+void setup()
+{
   Serial.begin(115200);
 
   Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
@@ -351,11 +410,11 @@ void setup() {
   FastLED.addLeds<LED_TYPE, LED_DATA_PIN_4, COLOR_ORDER>(irTargets[3]->leds, NUM_LEDS);
   // FastLED.addLeds<LED_TYPE, LED_DATA_PIN_4, COLOR_ORDER>(irTargets[3]->leds, NUM_LEDS);
 
-  for (int i = 0; i < numTargets; i++) {
+  for (int i = 0; i < numTargets; i++)
+  {
     fill_solid(irTargets[i]->leds, NUM_LEDS, CRGB::Red);
   }
   FastLED.setBrightness(BRIGHTNESS);
-
 
   pinMode(alertPin, OUTPUT);
   pinMode(buttonPin, INPUT);
@@ -365,38 +424,48 @@ void setup() {
   resetGameState();
 }
 
-void loop() {
+void loop()
+{
 
   digitalWrite(alertPin, ledState);
 
-  if (servoMoving && (millis() > (lastServoMove + servoMoveMs)))  {
+  if (servoMoving && (millis() > (lastServoMove + servoMoveMs)))
+  {
     servo.write(servoPos);
     lastServoMove = millis();
-    if (servoIncreasing) {
+    if (servoIncreasing)
+    {
       servoPos += 1;
-    } else {
+    }
+    else
+    {
       servoPos -= 1;
     }
 
-    if (servoPos == 180) {
+    if (servoPos == 180)
+    {
       servoIncreasing = false;
     }
 
-    if (servoPos == 0) {
+    if (servoPos == 0)
+    {
       servoIncreasing = true;
     }
   }
 
   debounceButton();
 
-  if (sIRDataJustReceived) {
-    if (gameActive) {
+  if (sIRDataJustReceived)
+  {
+    if (gameActive)
+    {
       emitTargetHit();
     }
     assert(irparams.IRReceivePin == irTargets[activeTargetIdx]->irPin);
 
     uint16_t sumIrBuffer = 0;
-    for (uint8_t i = 0; i < IrReceiver.decodedIRData.rawDataPtr->rawlen; i++) {
+    for (uint8_t i = 0; i < IrReceiver.decodedIRData.rawDataPtr->rawlen; i++)
+    {
       sumIrBuffer = IrReceiver.decodedIRData.rawDataPtr->rawbuf[i];
     }
 
@@ -408,10 +477,12 @@ void loop() {
     sIRDataJustReceived = false;
   }
 
-  if (gameActiveChangeSignalReceived) {
+  if (gameActiveChangeSignalReceived)
+  {
     gameActive = !gameActive;
     emitGameActive();
-    if (gameActive) {
+    if (gameActive)
+    {
       resetGameState();
       gameStart = millis();
       delay(1000);
@@ -420,23 +491,28 @@ void loop() {
     gameActiveChangeSignalReceived = false;
   }
 
-  if (gameModeChangeSignalReceived) {
+  if (gameModeChangeSignalReceived)
+  {
     emitGameMode();
     gameModeChangeSignalReceived = false;
   }
 
-  if (gameActive && millis() > (gameStart + gameLength + MS_OFFSET)) {
+  if (gameActive && millis() > (gameStart + gameLength + MS_OFFSET))
+  {
     Serial.println(F("time expired"));
     gameActive = false;
-    for (int i = 0; i < 6; i ++){
+    for (int i = 0; i < 6; i++)
+    {
       blinkRainbow();
     }
     emitGameActive();
   }
 
   // If game is not active, just display a holding color until ready
-  if (!gameActive) {
-    for (int i = 0; i < numTargets; i++) {
+  if (!gameActive)
+  {
+    for (int i = 0; i < numTargets; i++)
+    {
       fill_rainbow(irTargets[i]->leds, NUM_LEDS, 0, 16);
     }
     safeFastLedShow();
@@ -444,13 +520,14 @@ void loop() {
   }
 
   if (
-    (gameMode == SHOWDOWN_GAME_MODE && totalHitsOnTarget >= NUM_LEDS) ||
-    (gameMode == VS_GAME_MODE && playerStates[lastPlayerHit].hitsOnTarget >= NUM_LEDS / 2)
-  ) {
+      (gameMode == SHOWDOWN_GAME_MODE && totalHitsOnTarget >= NUM_LEDS) ||
+      (gameMode == VS_GAME_MODE && playerStates[lastPlayerHit].hitsOnTarget >= NUM_LEDS / 2))
+  {
     targetDestroyedUpdate();
   }
 
-  if (randomTargetJumpEnabled && millis() > lastJumpTime + MIN_MS_BETWEEN_JUMP && random8(100) < 0.05) {
+  if (randomTargetJumpEnabled && millis() > lastJumpTime + MIN_MS_BETWEEN_JUMP && random8(100) < 0.05)
+  {
     lastJumpTime = millis();
     activateRandomNextTarget();
   }
@@ -459,30 +536,36 @@ void loop() {
   safeFastLedShow();
 }
 
-void ReceiveCompleteCallbackHandler() {
+void ReceiveCompleteCallbackHandler()
+{
   IrReceiver.decode();
 
-  if (IrReceiver.decodedIRData.protocol == NEC) {
-    if (IrReceiver.decodedIRData.command == 0x40) {
+  if (IrReceiver.decodedIRData.protocol == NEC)
+  {
+    if (IrReceiver.decodedIRData.command == 0x40)
+    {
       gameActiveChangeSignalReceived = true;
     }
-    else if (!gameActive) {
-      if (IrReceiver.decodedIRData.command == 0xC) {
+    else if (!gameActive)
+    {
+      if (IrReceiver.decodedIRData.command == 0xC)
+      {
         gameModeChangeSignalReceived = true;
         gameMode = SHOWDOWN_GAME_MODE;
       }
-      else if (IrReceiver.decodedIRData.command == 0X18) {
+      else if (IrReceiver.decodedIRData.command == 0X18)
+      {
         gameModeChangeSignalReceived = true;
         gameMode = VS_GAME_MODE;
       }
     }
   }
 
-  if (IrReceiver.decodedIRData.rawDataPtr->rawlen == 18) {
+  if (IrReceiver.decodedIRData.rawDataPtr->rawlen == 18)
+  {
     sIRDataJustReceived = true;
     ledState = !ledState;
   }
 
   IrReceiver.resume();
 }
-

@@ -35,7 +35,7 @@
         let timer;
         let isVersus = 0;
 
-        socket.on('scoreUpdate', (data) => {
+        socket.on('SCORE', (data) => {
             console.log(data);
             if (isVersus) {
                 document.getElementById('player1').innerHTML = data.score1;
@@ -46,7 +46,7 @@
             
         });
 
-        socket.on('gameMode', (data) => {
+        socket.on('GAME_MODE', (data) => {
             isVersus = +data.gameMode;
             document.getElementById('gameMode').innerHTML = isVersus ? "Showdown!" : "Versus";
             if (isVersus) {
@@ -58,7 +58,7 @@
             }
         })
 
-        socket.on('startGame', (data) => {
+        socket.on('GAME_ACTIVE', (data) => {
             console.log(data);
             let countdownSeconds = data.gameMs / 1000;
             const timerDisplay = document.getElementById('timer');
@@ -75,7 +75,7 @@
             }, 1000)
         })
 
-        socket.on('endGame', () => {
+        socket.on('GAME_INACTIVE', () => {
             clearInterval(timer);
             document.getElementById('timer').innerHTML = 'Game Over';
         })

@@ -4,19 +4,21 @@ version = "0.1.0"
 description = ""
 authors = ["Jonathan Zhang <jonathan.zhang@scale.com>"]
 readme = "README.md"
-packages = [{include = "children_game_night"}]
+packages = [{ include = "children_game_night" }]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 flask = "^3.0.0"
 pyserial = "^3.5"
 flask-socketio = "^5.3.6"
 pygame = "^2.5.2"
+flask-cors = "^4.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.6.1"
 types-pyserial = "^3.5.0.10"
+types-flask-cors = "^4.0.0.2"
 
 [build-system]
 requires = ["poetry-core"]
