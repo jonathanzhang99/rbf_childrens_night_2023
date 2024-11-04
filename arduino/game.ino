@@ -20,14 +20,21 @@ FASTLED_USING_NAMESPACE
 #define LED_DATA_PIN_2 7
 #define LED_DATA_PIN_3 8
 #define LED_DATA_PIN_4 9
+#define IR_RECEIVE_PIN_1 2
+#define IR_RECEIVE_PIN_2 3
+#define IR_RECEIVE_PIN_3 4
+#define IR_RECEIVE_PIN_4 5
+
 #define BRIGHTNESS 96
 #define FRAMES_PER_SECOND 120
 
 #define MS_OFFSET 1000
 #define MIN_MS_BETWEEN_JUMP 1000
-#define LEVEL_1 3
-#define LEVEL_2 5
-#define LEVEL_3 7
+
+// Number of targets destroyed to trigger a level up
+#define LEVEL_1 10
+#define LEVEL_2 12
+#define LEVEL_3 14
 #define SHOWDOWN_GAME_MODE 0
 #define VS_GAME_MODE 1
 
@@ -50,10 +57,10 @@ struct irTarget
   CRGB leds[NUM_LEDS];
 };
 
-irTarget target1 = {2};
-irTarget target2 = {3};
-irTarget target3 = {4};
-irTarget target4 = {5};
+irTarget target1 = {IR_RECEIVE_PIN_1};
+irTarget target2 = {IR_RECEIVE_PIN_2};
+irTarget target3 = {IR_RECEIVE_PIN_3};
+irTarget target4 = {IR_RECEIVE_PIN_4};
 
 // irTarget *irTargets[] = { &target1, &target2, &target3, &target4 };
 irTarget *irTargets[] = {&target1, &target2, &target3, &target4};
@@ -66,7 +73,7 @@ uint8_t activeTargetIdx = 0;
 bool gameActive = false;
 uint8_t gameMode = SHOWDOWN_GAME_MODE;
 unsigned long gameStart;
-unsigned long gameLength = 90000;
+unsigned long gameLength = 60000;
 bool randomTargetJumpEnabled = false;
 unsigned long lastJumpTime = 0;
 
@@ -103,8 +110,9 @@ const int servoPin = 10;
 
 uint8_t analogPinValue = 0;
 
-const unsigned long debounceDelay = 50;
+const unsigned long debounceDelay = 100;
 unsigned long lastDebounceTime = 0;
+unsigned long lastActiveStateChangeTime = 0;
 byte lastButtonState = LOW;
 byte buttonState = LOW;
 
@@ -162,7 +170,7 @@ void emitScore()
   Serial.println();
 }
 
-void emitGameActive()
+void emitGameActiveState()
 {
   if (gameActive)
   {
@@ -479,13 +487,19 @@ void loop()
 
   if (gameActiveChangeSignalReceived)
   {
-    gameActive = !gameActive;
-    emitGameActive();
-    if (gameActive)
-    {
-      resetGameState();
-      gameStart = millis();
-      delay(1000);
+    // simple debounce logic to avoid repeated hits
+    if (millis() - lastActiveStateChangeTime > debounceDelay) {    
+      lastActiveStateChangeTime = millis();
+      gameActive = !gameActive;
+      emitGameActiveState();
+      if (gameActive)
+      {
+        resetGameState();
+        gameStart = millis();
+        delay(1000);
+      } else {
+        activeTargetIdx = 0;
+      }
     }
 
     gameActiveChangeSignalReceived = false;
@@ -505,7 +519,7 @@ void loop()
     {
       blinkRainbow();
     }
-    emitGameActive();
+    emitGameActiveState();
   }
 
   // If game is not active, just display a holding color until ready
@@ -539,10 +553,19 @@ void loop()
 void ReceiveCompleteCallbackHandler()
 {
   IrReceiver.decode();
+  // Serial.print("protocol ");
+  // Serial.println(IrReceiver.decodedIRData.protocol);
+  // Serial.print("command ");
+  // Serial.println(IrReceiver.decodedIRData.command);
+
+  // The below lines are used to hack other IR signal remotes to enable the game
+  // if (IrReceiver.decodedIRData.protocol == 8 && IrReceiver.decodedIRData.command == 10) {
+  //   gameActiveChangeSignalReceived = true;
+  // }
 
   if (IrReceiver.decodedIRData.protocol == NEC)
   {
-    if (IrReceiver.decodedIRData.command == 0x40)
+    if (IrReceiver.decodedIRData.command == 0x43)
     {
       gameActiveChangeSignalReceived = true;
     }
